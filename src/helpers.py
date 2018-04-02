@@ -11,8 +11,8 @@ n_rows = 6
 objpoints = [] # 3D points in real world space
 imgpoints = [] # 2D points in image plane
 
-img_size = (1280, 720) # All images I'm working with have this dimension, this will be a useful variable
-w,h = img_size
+img_size = (720, 1280) # All images I'm working with have this dimension, this will be a useful variable
+h,w = img_size
 
 objp = np.zeros((n_cols*n_rows,3), np.float32)
 objp[:,:2] = np.mgrid[0:n_cols,0:n_rows].T.reshape(-1,2)
@@ -227,8 +227,11 @@ def analyze_transformed_image(img):
     # middle_lane = np.array(list(zip(np.concatenate((right_fitx-window_width/2,right_fitx[::-1]+window_width/2),axis=0),np.concatenate((yvals,yvals[::-1]),axis=0))),np.int32)
 
     # road = np.zeros_like(original_img)
-    road = np.zeros((1280, 720, 3))
+    road = np.zeros((h, w, 3))
     # road_bkg = np.zeros_like(img)
+    # print(len(left_lane))
+    # print(road.shape)
+    # print(img.shape)
     cv2.fillPoly(road, [left_lane], color=[255,0,0]) # Left is red
     cv2.fillPoly(road, [right_lane], color=[0,0,255]) # Right is blue
     # cv2.fillPoly(road_bkg, left_lane,color=[255,255,255])
@@ -244,11 +247,15 @@ def analyze_transformed_image(img):
     # Determine the curvature of left lane
     curve_rad = ((1+(2*curve_fit_cr[0]*yvals[-1]*ym_per_pix + curve_fit_cr[1])**2)**1.5) / np.absolute(2*curve_fit_cr[0])
 
-    camera_perspective = cv2.warpPerspective(road, Minv, img_size, flags=cv2.INTER_LINEAR)
+    # Warp from birds eye to camera perspective
+    camera_perspective = cv2.warpPerspective(road, Minv, (w,h), flags=cv2.INTER_LINEAR)
 
     cv2.putText(camera_perspective, 'The Radius of Curvature = ' + str(round(curve_rad,3))+'(m)',(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
     cv2.putText(camera_perspective, 'The Vehicle is ' + str(abs(round(center_diff,3)))+'m ' + side_pos + ' of center',(50,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
 
     small_birds_eye = cv2.resize(road, (0,0), fx=0.3, fy=0.3)
+    # print('In analyze_transformed_image')
+    # print('road.shape = ', camera_perspective.shape)
+    # print('Small road.shape = ', small_birds_eye.shape)
 
-    return camera_perspective, small_birds_eye
+    return camera_perspective, small_birds_eye # road, small_road

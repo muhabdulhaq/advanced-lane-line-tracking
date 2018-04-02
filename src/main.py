@@ -13,13 +13,22 @@ img_size = (1280, 720) # All images I'm working with have this dimension, this w
 w,h = img_size
 
 def process_image(img):
+    # print(img.shape)
     calibrated = helpers.calibrate_image(img)
+    # print(calibrated.shape)
     img = helpers.gradient_plus_color_transform(calibrated)
+    # print(img.shape)
     warped = cv2.warpPerspective(img, helpers.M, img_size, flags=cv2.INTER_LINEAR)
+    # print(warped.shape)
     road, small_road = helpers.analyze_transformed_image(warped)
+    # print(road.shape)
+    # print(small_road.shape)
+    # print(small_road.shape)
 
     # Overlay lane lines with the calibrated image
     road = road.astype(np.uint8)
+    # print(road.shape)
+    # print(calibrated.shape)
     road_with_lane_lines = cv2.addWeighted(road, 1.0, calibrated, 0.4, gamma=0.0)
     # Add birds eye view to top right corner (Row,Col coords)
     road_with_lane_lines[0:small_road.shape[0], 1280-small_road.shape[1]:] = small_road
