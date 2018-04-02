@@ -1,10 +1,18 @@
 from tracker import Tracker
+from pathlib import Path
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+import cv2
 
 PATH = Path('../camera_cal/')
 n_cols = 9
 n_rows = 6
 objpoints = [] # 3D points in real world space
 imgpoints = [] # 2D points in image plane
+
+img_size = (1280, 720) # All images I'm working with have this dimension, this will be a useful variable
+w,h = img_size
 
 objp = np.zeros((n_cols*n_rows,3), np.float32)
 objp[:,:2] = np.mgrid[0:n_cols,0:n_rows].T.reshape(-1,2)
@@ -177,6 +185,7 @@ def analyze_transformed_image(img):
     '''
     curve_centers = Tracker(window_width=window_width, window_height=window_height, margin=25,
                             ym=ym_per_pix, xm=xm_per_pix, smooth_factor=15)
+    warped = img
     window_centroids = curve_centers.find_window_centroids(warped)
 
     l_points = np.zeros_like(warped)
@@ -217,9 +226,10 @@ def analyze_transformed_image(img):
     right_lane = np.array(list(zip(np.concatenate((right_fitx-window_width/2,right_fitx[::-1]+window_width/2),axis=0),np.concatenate((yvals,yvals[::-1]),axis=0))),np.int32)
     # middle_lane = np.array(list(zip(np.concatenate((right_fitx-window_width/2,right_fitx[::-1]+window_width/2),axis=0),np.concatenate((yvals,yvals[::-1]),axis=0))),np.int32)
 
-    road = np.zeros_like(original_img)
+    # road = np.zeros_like(original_img)
+    road = np.zeros((1280, 720, 3))
     # road_bkg = np.zeros_like(img)
-    cv2.fillPoly(road, [left_lane], color=[255,0,0]) # Left is Red
+    cv2.fillPoly(road, [left_lane], color=[255,0,0]) # Left is red
     cv2.fillPoly(road, [right_lane], color=[0,0,255]) # Right is blue
     # cv2.fillPoly(road_bkg, left_lane,color=[255,255,255])
     # cv2.fillPoly(road_bkg, right_lane,color=[255,255,255])
@@ -237,7 +247,7 @@ def analyze_transformed_image(img):
     camera_perspective = cv2.warpPerspective(road, Minv, img_size, flags=cv2.INTER_LINEAR)
 
     cv2.putText(camera_perspective, 'The Radius of Curvature = ' + str(round(curve_rad,3))+'(m)',(50,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
-    cv2.putText(camera_perspective, 'The Vehicle is ' + str(abs(round(center_diff,3)))+'m' + side_pos + ' of center',(50,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
+    cv2.putText(camera_perspective, 'The Vehicle is ' + str(abs(round(center_diff,3)))+'m ' + side_pos + ' of center',(50,100),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),2)
 
     small_birds_eye = cv2.resize(road, (0,0), fx=0.3, fy=0.3)
 

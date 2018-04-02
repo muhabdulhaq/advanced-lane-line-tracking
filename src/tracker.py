@@ -1,3 +1,5 @@
+import numpy as np
+
 class Tracker():
     def __init__(self, window_width, window_height, margin, ym=1, xm=1, smooth_factor=15):
         self.recent_centers = []
