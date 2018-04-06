@@ -90,7 +90,7 @@ After identifying the lane lines, plotting them, and calculating the radius of c
 
 ### Pipeline (video)
 
-Here's a [link to my video result](https://youtu.be/TfRz_oF5x3E)!
+Here's a [link to my video result](https://youtu.be/Zu2TPCp8AwU)!
 
 ---
 
